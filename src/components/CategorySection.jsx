@@ -5,13 +5,14 @@ import {
 } from "lucide-react";
 import { GiAmpleDress, GiShirt } from "react-icons/gi";
 import { BsSunglasses } from "react-icons/bs";
+import { PiPantsDuotone } from "react-icons/pi";
 
 const categories = [
   { name: "All", icon: <ShoppingBag size={20} />, value: "All" },
   { name: "Men", icon: <User size={20} />, value: "Men" },
   { name: "Women", icon: <GiAmpleDress size={20} />, value: "Dress" },
   { name: "Shirt", icon: <Shirt size={20} />, value: "Shirt" },
-  { name: "Pant", icon: <MonitorSmartphone size={20} />, value: "Pant" },
+  { name: "Pant", icon: <PiPantsDuotone  size={20} />, value: "Pant" },
   { name: "Panjabi", icon: <GiShirt size={20} />, value: "Panjabi" },
   { name: "Shoes", icon: <Footprints size={20} />, value: "Shoes" },
   { name: "Watch", icon: <Watch size={20} />, value: "Watch" },

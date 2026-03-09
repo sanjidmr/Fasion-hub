@@ -49,21 +49,22 @@ function NavBar({ onCartClick }) {
   return (
     <>
       <nav
-        className={`w-full fixed top-0 left-0 z-[100] transition-all duration-500 ${
+        className={`w-full fixed top-0 left-0 z-[1000] transition-all duration-500 ${
           isScrolled 
-          ? "bg-white/90 backdrop-blur-xl py-3 shadow-md border-b border-gray-100" 
+          ? "bg-white/95 backdrop-blur-xl py-3 shadow-md border-b border-gray-100" 
           : "bg-white py-4 md:py-6"
         }`}
       >
         <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-12">
           <div className="flex items-center justify-between gap-2 md:gap-4">
             
+            {/* Left Menu */}
             <div className="flex-1 flex items-center">
               <button 
                 onClick={() => setSidebarOpen(true)} 
                 className="lg:hidden p-2 hover:bg-gray-100 rounded-full transition-colors mr-2"
               >
-                <Menu className="h-6 w-6" />
+                <Menu className="h-6 w-6 text-black" />
               </button>
 
               <div className="hidden lg:flex items-center gap-6 xl:gap-8">
@@ -80,6 +81,7 @@ function NavBar({ onCartClick }) {
               </div>
             </div>
 
+            {/* Center Logo */}
             <div 
               className="flex items-center gap-2 md:gap-3 cursor-pointer shrink-0 group" 
               onClick={() => navigate('/')}
@@ -95,33 +97,38 @@ function NavBar({ onCartClick }) {
               </div>
             </div>
 
-            <div className="flex-1 flex items-center justify-end gap-1.5 sm:gap-3 md:gap-5">
+            {/* Right Icons */}
+            <div className="flex-1 flex items-center justify-end gap-1 sm:gap-2 md:gap-4">
               
               <div className="flex items-center relative">
+                {/* Search Input Container - Expanded to Left */}
                 <div className={`
-                  absolute right-0 transition-all duration-500 ease-in-out
-                  ${isSearchOpen ? "w-[140px] sm:w-[200px] md:w-[280px] opacity-100 translate-x-0" : "w-0 opacity-0 translate-x-4 pointer-events-none"}
+                  absolute right-full mr-2 transition-all duration-500 ease-in-out
+                  ${isSearchOpen ? "w-[120px] sm:w-[180px] md:w-[250px] opacity-100 visible" : "w-0 opacity-0 invisible"}
                 `}>
                   <form onSubmit={handleSearchSubmit}>
                     <input 
                       type="text" 
+                      autoFocus
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       placeholder="Search..." 
-                      className="w-full bg-gray-100 px-4 py-2 rounded-full text-xs font-bold outline-none border border-transparent focus:border-emerald-500 focus:bg-white transition-all shadow-inner"
+                      className="w-full bg-gray-100 px-4 py-2 rounded-full text-xs font-bold outline-none border border-gray-200 focus:border-emerald-500 focus:bg-white transition-all shadow-sm text-black"
                     />
                   </form>
                 </div>
+
+                {/* Search Toggle Button */}
                 <button 
                   onClick={() => setIsSearchOpen(!isSearchOpen)}
-                  className={`p-2 rounded-full transition-all relative z-10 ${isSearchOpen ? "bg-red-50 text-red-500 rotate-90" : "hover:bg-gray-100"}`}
+                  className={`p-2 rounded-full transition-all relative z-[1010] ${isSearchOpen ? "bg-black text-white" : "hover:bg-gray-100 text-black"}`}
                 >
                   {isSearchOpen ? <X size={20} /> : <Search size={20} />}
                 </button>
               </div>
 
               <button className="hidden sm:flex p-2 hover:bg-red-50 rounded-full group transition-all">
-                <Heart size={20} className="group-hover:text-red-500 group-hover:fill-red-500 transition-colors" />
+                <Heart size={20} className="text-black group-hover:text-red-500 group-hover:fill-red-500 transition-colors" />
               </button>
 
               <button 
@@ -130,7 +137,7 @@ function NavBar({ onCartClick }) {
               >
                 <ShoppingBag size={18} className="text-white group-hover:scale-110 transition-transform" />
                 {cartCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-emerald-500 text-white text-[9px] h-5 w-5 flex items-center justify-center rounded-full border-2 border-white font-black animate-bounce">
+                  <span className="absolute -top-1 -right-1 bg-emerald-500 text-white text-[9px] h-5 w-5 flex items-center justify-center rounded-full border-2 border-white font-black">
                     {cartCount}
                   </span>
                 )}
