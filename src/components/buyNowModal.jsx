@@ -1,155 +1,177 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, CheckCircle2, Truck, User, Phone, MapPin } from "lucide-react";
+import { X, CheckCircle2, MapPin, Phone, User } from "lucide-react";
 
-const BuyNowModal = ({ isOpen, onClose, cartItems, subtotal }) => {
+const BuyNowModal = ({ isOpen, onClose, cartItems = [] }) => {
   const [isOrdering, setIsOrdering] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const handleConfirmOrder = (e) => {
-    e.preventDefault();
-    setIsOrdering(true);
-    setTimeout(() => {
-      setIsOrdering(false);
-      setIsSuccess(true);
-    }, 2000);
-  };
+  // Price Calculation
+  const subtotal = cartItems.reduce((acc, item) => acc + (item.price * (item.quantity || 1)), 0);
+  const deliveryCharge = 60;
+  const totalAmount = subtotal + deliveryCharge;
+
+  // Disable body scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => { document.body.style.overflow = "unset"; };
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 sm:p-6 md:p-8">
+    <div className="fixed inset-0 !z-[99999] flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-hidden">
+      {/* Dark Overlay */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        onClick={isSuccess ? null : onClose}
-        className="absolute inset-0 bg-black/70 backdrop-blur-md"
+        onClick={onClose}
+        className="absolute inset-0 bg-black/80 backdrop-blur-md"
       />
 
       <AnimatePresence mode="wait">
         {!isSuccess ? (
           <motion.div
-            key="modal"
-            initial={{ scale: 0.9, opacity: 0, y: 20 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0.9, opacity: 0, y: 20 }}
-            className="relative bg-white w-full max-w-[500px] max-h-[90vh] rounded-[2rem] md:rounded-[2.5rem] overflow-hidden shadow-2xl z-10 border border-gray-100 flex flex-col"
+            key="modal-body"
+            initial={{ y: "100%" }}
+            animate={{ y: 0 }}
+            exit={{ y: "100%" }}
+            className="relative bg-white w-full max-w-5xl h-[94vh] sm:h-auto sm:max-h-[90vh] rounded-t-[2rem] sm:rounded-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.3)] z-[100000] flex flex-col md:flex-row overflow-hidden"
           >
+            {/* Close Button */}
             <button
               onClick={onClose}
-              className="absolute top-4 right-4 md:top-6 md:right-6 p-2 bg-gray-100 hover:bg-red-500 hover:text-white text-gray-800 rounded-full transition-all duration-300 z-20"
+              className="absolute top-4 right-4 p-3 bg-gray-100 hover:bg-gray-200 text-black rounded-full z-[100001] transition-all"
             >
-              <X size={18} />
+              <X size={20} />
             </button>
-            <div className="overflow-y-auto custom-scrollbar">
-              <form onSubmit={handleConfirmOrder} className="p-6 sm:p-8 md:p-10">
-                <div className="mb-6 md:mb-8">
-                  <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tighter text-zinc-900">
-                    Checkout
-                  </h2>
-                  <p className="text-[10px] md:text-[11px] text-zinc-500 font-bold uppercase tracking-[0.2em] mt-1 italic">
-                    Complete your premium order
-                  </p>
-                </div>
 
-                <div className="space-y-3 md:space-y-4">
-                  <div className="relative group">
-                    <User className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-black transition-colors" size={18} />
-                    <input
-                      required
-                      type="text"
-                      placeholder="Full Name"
-                      className="w-full bg-zinc-50 border border-zinc-200 text-zinc-900 placeholder:text-zinc-400 rounded-xl md:rounded-2xl py-3.5 md:py-4 pl-12 pr-4 focus:ring-2 focus:ring-black focus:bg-white transition-all font-semibold text-sm outline-none"
-                    />
+            {/* Left: Checkout Form */}
+            <div className="flex-1 overflow-y-auto p-6 md:p-10 bg-white">
+              <div className="mb-8">
+                <h2 className="text-3xl font-extrabold text-black uppercase tracking-tight">Checkout</h2>
+                <p className="text-gray-500 font-medium">Complete your premium order</p>
+              </div>
+
+              <form
+                onSubmit={(e) => { 
+                  e.preventDefault(); 
+                  setIsOrdering(true); 
+                  setTimeout(() => setIsSuccess(true), 2000); 
+                }}
+                className="space-y-6 pb-24 md:pb-0"
+              >
+                {/* User Info Fields */}
+                <div className="space-y-4">
+                  <div className="relative">
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                    <input required type="text" placeholder="Full Name" className="w-full bg-gray-50 border-2 border-gray-100 rounded-xl py-4 pl-12 pr-4 text-black placeholder-gray-400 focus:border-black outline-none transition-all font-semibold" />
                   </div>
 
-                  <div className="relative group">
-                    <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-black transition-colors" size={18} />
-                    <input
-                      required
-                      type="text"
-                      placeholder="Delivery Address"
-                      className="w-full bg-zinc-50 border border-zinc-200 text-zinc-900 placeholder:text-zinc-400 rounded-xl md:rounded-2xl py-3.5 md:py-4 pl-12 pr-4 focus:ring-2 focus:ring-black focus:bg-white transition-all font-semibold text-sm outline-none"
-                    />
+                  <div className="grid grid-cols-2 gap-4">
+                    <input required type="text" placeholder="Division" className="w-full bg-gray-50 border-2 border-gray-100 rounded-xl py-4 px-4 text-black placeholder-gray-400 focus:border-black outline-none transition-all font-semibold" />
+                    <input required type="text" placeholder="District" className="w-full bg-gray-50 border-2 border-gray-100 rounded-xl py-4 px-4 text-black placeholder-gray-400 focus:border-black outline-none transition-all font-semibold" />
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
-                    <div className="relative group">
-                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-black transition-colors" size={16} />
-                      <input
-                        required
-                        type="tel"
-                        placeholder="Phone Number"
-                        className="w-full bg-zinc-50 border border-zinc-200 text-zinc-900 placeholder:text-zinc-400 rounded-xl md:rounded-2xl py-3.5 md:py-4 pl-12 pr-4 focus:ring-2 focus:ring-black focus:bg-white transition-all font-semibold text-sm outline-none"
-                      />
-                    </div>
-                    <div className="flex items-center justify-center bg-zinc-900 text-white rounded-xl md:rounded-2xl px-4 py-3.5 md:py-4 text-[9px] md:text-[10px] font-black uppercase tracking-widest shadow-lg">
-                      <Truck size={14} className="mr-2 text-green-400" /> Cash on Delivery
-                    </div>
+                  <div className="relative">
+                    <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                    <input required type="text" placeholder="Detail Address (Area/Road/House)" className="w-full bg-gray-50 border-2 border-gray-100 rounded-xl py-4 pl-12 pr-4 text-black placeholder-gray-400 focus:border-black outline-none transition-all font-semibold" />
                   </div>
-                </div>
 
-                <div className="mt-6 md:mt-8 p-5 md:p-6 bg-zinc-50 rounded-[1.5rem] md:rounded-[2rem] border border-zinc-200">
-                  <div className="flex justify-between items-center mb-2 text-[10px] font-black text-zinc-500 uppercase tracking-widest">
-                    <span>Total Selected Items</span>
-                    <span className="text-zinc-900">{cartItems?.length || 0}</span>
-                  </div>
-                  <div className="h-[1px] bg-zinc-200 w-full my-3"></div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-base md:text-lg font-black uppercase tracking-tighter text-zinc-800">Total Payable</span>
-                    <span className="text-xl md:text-2xl font-black text-green-700">৳{subtotal}</span>
+                  <div className="relative">
+                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                    <input required type="tel" placeholder="Phone Number" className="w-full bg-gray-50 border-2 border-gray-100 rounded-xl py-4 pl-12 pr-4 text-black placeholder-gray-400 focus:border-black outline-none transition-all font-semibold" />
                   </div>
                 </div>
 
                 <button
-                  disabled={isOrdering}
                   type="submit"
-                  className="w-full mt-6 md:mt-8 bg-zinc-900 hover:bg-green-700 text-white py-4 md:py-5 rounded-xl md:rounded-2xl font-black text-[10px] md:text-xs uppercase tracking-[0.2em] md:tracking-[0.3em] transition-all duration-500 shadow-xl disabled:bg-zinc-400 active:scale-95"
+                  disabled={isOrdering}
+                  className="hidden md:block w-full bg-black text-white py-5 rounded-2xl font-bold text-sm uppercase tracking-widest hover:bg-gray-800 transition-all disabled:bg-gray-300"
                 >
-                  {isOrdering ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      Processing...
-                    </span>
-                  ) : (
-                    "Confirm Order Now"
-                  )}
+                  {isOrdering ? "Processing..." : "Confirm Order"}
                 </button>
               </form>
             </div>
-          </motion.div>
-        ) : (
-          <motion.div
-            key="success"
-            initial={{ scale: 0.5, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="relative bg-white w-full max-w-[400px] rounded-[2.5rem] md:rounded-[3rem] p-8 md:p-10 text-center shadow-2xl z-10 border border-zinc-100"
-          >
-            <div className="flex flex-col items-center">
-              <div className="w-20 h-20 md:w-24 md:h-24 bg-green-50 text-green-600 rounded-full flex items-center justify-center mb-6 shadow-inner">
-                <CheckCircle2 size={48} md:size={56} strokeWidth={2.5} />
+
+            {/* Right: Order Summary */}
+            <div className="w-full md:w-[380px] bg-gray-50 p-6 md:p-10 border-t md:border-t-0 md:border-l border-gray-100">
+              <h3 className="text-xl font-bold text-black mb-6">Your Order</h3>
+
+              <div className="space-y-4 max-h-[150px] md:max-h-[300px] overflow-y-auto mb-6">
+                {cartItems.map((item, i) => (
+                  <div key={i} className="flex justify-between items-center bg-white p-3 rounded-xl border border-gray-100">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-gray-100 rounded-md overflow-hidden">
+                        <img src={item.image} alt="" className="w-full h-full object-cover" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-black line-clamp-1">{item.name}</p>
+                        <p className="text-[10px] text-gray-400">Qty: {item.quantity || 1}</p>
+                        {item.selectedSize && <p className="text-[10px] text-gray-400">Size: {item.selectedSize}</p>}
+                      </div>
+                    </div>
+                    <p className="text-sm font-bold text-black">৳{item.price * (item.quantity || 1)}</p>
+                  </div>
+                ))}
               </div>
-              
-              <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tighter text-zinc-900">Order Placed!</h2>
-              <p className="text-zinc-500 text-xs md:text-sm font-bold mt-3 leading-relaxed">
-                Thank you for choosing FashionHub. <br className="hidden sm:block"/> Your style is on its way!
-              </p>
-              
-              <div className="mt-6 md:mt-8 pt-6 md:pt-8 border-t border-zinc-100 w-full">
-                <div className="bg-zinc-50 py-2 px-4 rounded-full inline-block mb-6">
-                  <p className="text-[9px] md:text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em]">
-                    Order ID: <span className="text-zinc-900">#FH-{Math.floor(Math.random() * 9000) + 1000}</span>
-                  </p>
+
+              {/* Price Details */}
+              <div className="space-y-3 bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                <div className="flex justify-between text-gray-500 font-bold text-xs uppercase">
+                  <span>Subtotal</span>
+                  <span className="text-black italic">৳{subtotal}</span>
+                </div>
+                <div className="flex justify-between text-gray-500 font-bold text-xs uppercase">
+                  <span>Delivery</span>
+                  <span className="text-black italic">৳{deliveryCharge}</span>
+                </div>
+                <div className="h-[1px] bg-gray-100 my-2"></div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-black text-black uppercase">Total</span>
+                  <span className="text-2xl font-black text-green-600 tracking-tighter">৳{totalAmount}</span>
+                </div>
+              </div>
+
+              {/* Mobile Footer */}
+              <div className="fixed md:static bottom-0 left-0 right-0 bg-white p-4 md:p-0 md:mt-8 border-t md:border-none flex items-center gap-4">
+                <div className="md:hidden">
+                  <p className="text-[10px] font-bold text-gray-400 uppercase">Total Payable</p>
+                  <p className="text-xl font-black text-black">৳{totalAmount}</p>
                 </div>
                 <button
-                  onClick={onClose}
-                  className="w-full bg-zinc-900 hover:bg-zinc-800 text-white py-4 rounded-xl md:rounded-2xl font-black text-[10px] md:text-xs uppercase tracking-[0.2em] transition-all duration-300"
+                  onClick={() => !isOrdering && document.querySelector('form').dispatchEvent(new Event('submit', {cancelable: true, bubbles: true}))}
+                  className="flex-1 bg-black text-white py-4 rounded-xl font-bold text-sm uppercase tracking-widest hover:bg-gray-900 active:scale-95 transition-all"
                 >
-                  Return to Store
+                  {isOrdering ? "Wait..." : "Place Order"}
                 </button>
               </div>
             </div>
+          </motion.div>
+        ) : (
+          // Success Message
+          <motion.div
+            key="success"
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-white p-10 rounded-[2.5rem] w-full max-w-sm text-center mx-4 shadow-2xl z-[100002]"
+          >
+            <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
+              <CheckCircle2 size={40} strokeWidth={3} />
+            </div>
+            <h2 className="text-2xl font-black text-black uppercase">Order Placed!</h2>
+            <p className="text-gray-500 mt-2 font-medium">Thank you for your purchase.</p>
+            <button
+              onClick={onClose}
+              className="w-full mt-8 bg-black text-white py-4 rounded-xl font-bold uppercase tracking-widest"
+            >
+              Back to Store
+            </button>
           </motion.div>
         )}
       </AnimatePresence>

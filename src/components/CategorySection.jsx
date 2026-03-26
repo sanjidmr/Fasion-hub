@@ -1,83 +1,122 @@
-import React from 'react';
-import { 
-  User, Shirt, MonitorSmartphone, 
-  ShoppingBag, Watch, Footprints 
-} from "lucide-react";
-import { GiAmpleDress, GiShirt } from "react-icons/gi";
-import { BsSunglasses } from "react-icons/bs";
-import { PiPantsDuotone } from "react-icons/pi";
+import React, { useState, useEffect, useRef } from 'react';
+import { ShoppingBag, ArrowUpRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import s8 from "../assets/Images/s8.jpg";
+import pn4 from "../assets/Images/pn4.jpg";
+import p10 from "../assets/Images/p10.jpg";
+import a5 from "../assets/Images/a5.jpg";
 
 const categories = [
-  { name: "All", icon: <ShoppingBag size={20} />, value: "All" },
-  { name: "Men", icon: <User size={20} />, value: "Men" },
-  { name: "Women", icon: <GiAmpleDress size={20} />, value: "Dress" },
-  { name: "Shirt", icon: <Shirt size={20} />, value: "Shirt" },
-  { name: "Pant", icon: <PiPantsDuotone  size={20} />, value: "Pant" },
-  { name: "Panjabi", icon: <GiShirt size={20} />, value: "Panjabi" },
-  { name: "Shoes", icon: <Footprints size={20} />, value: "Shoes" },
-  { name: "Watch", icon: <Watch size={20} />, value: "Watch" },
-  { name: "Accessory", icon: <BsSunglasses size={20} />, value: "Accessory" },
+  { name: "Men's Wear", value: "Men", imgSrc: "https://images.unsplash.com/photo-1626557981101-aae6f84aa6ff?q=80&w=764&auto=format&fit=crop" },
+  { name: "Women's Collection", value: "Dress", imgSrc: "https://images.unsplash.com/photo-1733310925469-efcb541c7a16?q=80&w=687&auto=format&fit=crop" },
+  { name: "Kids Collection", value: "Kids", imgSrc: "https://images.unsplash.com/photo-1767858897602-b4809d429157?q=80&w=687&auto=format&fit=crop" },
+  { name: "Casual Shirts", value: "Shirt", imgSrc: s8 },
+  { name: "Premium Pants", value: "Pant", imgSrc: pn4 },
+  { name: "Traditional Panjabi", value: "Panjabi", imgSrc: p10 },
+  { name: "Footwear", value: "Shoes", imgSrc: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=500&q=80" },
+  { name: "Luxury Watches", value: "Watch", imgSrc: "https://images.unsplash.com/photo-1548169874-53e85f753f1e?auto=format&fit=crop&w=800&q=80" },
+  { name: "Accessories", value: "Accessory", imgSrc: a5 },
 ];
 
-const CategorySection = ({ activeCategory, setActiveCategory }) => {
+const CategorySection = () => {
+  const navigate = useNavigate();
+  const sliderRef = useRef(null);
+  const [scrollAmount, setScrollAmount] = useState(0);
+
+  const handleCategoryClick = (val) => {
+    navigate(`/collection?category=${val}`);
+  };
+
+  useEffect(() => {
+    const slider = sliderRef.current;
+    if (!slider) return;
+
+    let slideInterval = setInterval(() => {
+      const cardWidth = slider.querySelector('.min-w-[75%]')?.offsetWidth || 0;
+      const totalWidth = slider.scrollWidth;
+      const nextScrollAmount = scrollAmount + cardWidth + 16; // Add gap to cardWidth
+
+      if (nextScrollAmount >= totalWidth) {
+        slider.scrollTo({ left: 0, behavior: 'smooth' });
+        setScrollAmount(0);
+      } else {
+        slider.scrollBy({ left: cardWidth + 16, behavior: 'smooth' });
+        setScrollAmount(nextScrollAmount);
+      }
+    }, 3000); // Autoplay delay in milliseconds
+
+    return () => clearInterval(slideInterval);
+  }, [scrollAmount]);
+
   return (
-    <div className="py-12 md:py-20 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="py-12 md:py-20 bg-[#fcfcfc] overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 md:px-6">
         
-        <div className="text-center mb-10 md:mb-16">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-gray-900 uppercase">
-            Shop By <span className="text-green-600">Category</span>
+        {/* Section Header */}
+        <div className="flex flex-col items-center mb-10 md:mb-16 text-center">
+          <h2 className="text-2xl md:text-5xl font-black text-gray-900 uppercase tracking-tighter">
+            Featured <span className="text-green-600">Categories</span>
           </h2>
-          <div className="h-1.5 w-16 md:w-24 bg-green-600 mx-auto mt-4 rounded-full"></div>
+          <div className="h-1 w-16 md:h-1.5 md:w-24 bg-green-600 mt-3 rounded-full"></div>
         </div>
 
-        <div className="flex md:flex-wrap items-center md:justify-center gap-4 sm:gap-6 overflow-x-auto pb-8 md:pb-0 no-scrollbar scroll-smooth">
-          {categories.map((cat, index) => {
-            const isActive = activeCategory === cat.value;
-            
-            return (
-              <button
-                key={index}
-                onClick={() => setActiveCategory(cat.value)}
-                className={`
-                  flex flex-col items-center justify-center shrink-0
-                  /* Sizing for different screens */
-                  min-w-[100px] sm:min-w-[110px] md:min-w-[130px] 
-                  h-[110px] sm:h-[120px] md:h-[140px]
-                  rounded-[2.5rem] md:rounded-[3rem] 
-                  transition-all duration-500 border-2
-                  ${isActive
-                    ? "bg-black text-white border-black shadow-[0_20px_40px_-15px_rgba(0,0,0,0.3)] scale-105 -translate-y-2"
-                    : "bg-gray-50 text-gray-500 border-transparent hover:bg-white hover:border-green-500 hover:text-green-600 hover:shadow-xl hover:-translate-y-1"
-                  }
-                `}
-              >
-                <div className={`
-                  p-3 md:p-4 rounded-2xl md:rounded-3xl mb-2 transition-all duration-500
-                  ${isActive ? "bg-green-600 shadow-lg" : "bg-white shadow-sm"}
-                `}>
-                  <div className="scale-90 md:scale-110">
-                    {cat.icon}
-                  </div>
+        {/* Categories Container: Mobile - Auto Slide | Desktop - Grid */}
+        <div ref={sliderRef} className="flex overflow-x-auto pb-6 gap-4 snap-x md:grid md:grid-cols-3 md:gap-10 md:overflow-visible no-scrollbar">
+          {categories.map((cat, index) => (
+            <div
+              key={index}
+              onClick={() => handleCategoryClick(cat.value)}
+              className="min-w-[75%] sm:min-w-[50%] md:min-w-full snap-center group relative aspect-[3/4] overflow-hidden rounded-[1.5rem] md:rounded-[2.5rem] cursor-pointer bg-white shadow-md hover:shadow-2xl transition-all duration-500 border border-gray-100"
+            >
+              {/* --- Category Name Adjusted (Smaller & Side-aligned) --- */}
+              <div className="absolute top-0 left-0 w-full z-20 p-4 md:p-6">
+                <div className="bg-green-600 text-white px-3 py-1.5 md:px-5 md:py-2 rounded-lg md:rounded-xl inline-block shadow-lg transform translate-x-1 group-hover:translate-x-3 transition-transform duration-300">
+                  <span className="text-[10px] md:text-xs font-black uppercase tracking-widest whitespace-nowrap">
+                    {cat.name}
+                  </span>
                 </div>
+              </div>
 
-                <span className="text-[10px] md:text-xs font-black uppercase tracking-widest px-2 text-center">
-                  {cat.name}
-                </span>
-              </button>
-            );
-          })}
+              {/* Image Placeholder */}
+              <div className="absolute inset-0 z-0">
+                {cat.imgSrc ? (
+                  <img 
+                    src={cat.imgSrc} 
+                    alt={cat.name} 
+                    className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-[#E8EBE4]">
+                    <ShoppingBag className="text-green-800/10" size={60} />
+                  </div>
+                )}
+              </div>
+
+              {/* Gradient Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity"></div>
+
+              {/* Bottom Details */}
+              <div className="absolute inset-x-0 bottom-0 p-5 md:p-8 flex justify-between items-center text-white translate-y-2 group-hover:translate-y-0 transition-all duration-500">
+                <div>
+                  <p className="text-[8px] md:text-[10px] font-bold text-green-400 uppercase tracking-[0.2em] mb-1">Premium</p>
+                  <h3 className="text-lg md:text-2xl font-black uppercase tracking-tighter">Collection</h3>
+                </div>
+                <div className="bg-white/20 backdrop-blur-md p-2 md:p-3 rounded-full border border-white/30 group-hover:bg-green-600 group-hover:border-green-600 transition-all">
+                  <ArrowUpRight size={18} className="text-white md:w-5 md:h-5" />
+                </div>
+              </div>
+
+              {/* Hover Border Effect */}
+              <div className="absolute inset-0 border-0 group-hover:border-[6px] md:group-hover:border-[10px] border-green-600/10 transition-all duration-500 rounded-[1.5rem] md:rounded-[2.5rem]"></div>
+            </div>
+          ))}
         </div>
       </div>
 
-      <style jsx>{`
-        .no-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-        .no-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
+      {/* Global CSS to hide scrollbar but keep functionality */}
+      <style jsx="true">{`
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
     </div>
   );

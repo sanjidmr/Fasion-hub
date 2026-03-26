@@ -8,6 +8,38 @@ const ProductCard = ({ product, onAddToCart }) => {
     navigate(`/product/${product.id}`);
   };
 
+  // --- Wishlist Logic ---
+  const handleWishlistClick = (e) => {
+    e.stopPropagation(); // Button click korle jeno product detail-e na chole jay
+    
+    // LocalStorage theke ager data ana
+    const currentWishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+    
+    // Product-ti agei wishlist-e ache kina check kora
+    const isExist = currentWishlist.find((item) => item.id === product.id);
+
+    if (!isExist) {
+      const updatedWishlist = [...currentWishlist, product];
+      localStorage.setItem("wishlist", JSON.stringify(updatedWishlist));
+      
+      // Wishlist sidebar-ke update janano (Custom Event)
+      window.dispatchEvent(new Event("wishlistUpdate"));
+      
+      // Visual feedback hishebe ekti alert ba toast dite paro
+      // alert("Added to Wishlist! ❤️");
+    } else {
+      // Jodi thake tahole remove kore deya (Toggle logic)
+      const filtered = currentWishlist.filter((item) => item.id !== product.id);
+      localStorage.setItem("wishlist", JSON.stringify(filtered));
+      window.dispatchEvent(new Event("wishlistUpdate"));
+    }
+  };
+
+  // Wishlist-e ache kina check kora (Style change korar jonno)
+  const isInWishlist = (JSON.parse(localStorage.getItem("wishlist")) || []).some(
+    (item) => item.id === product.id
+  );
+
   return (
     <div className="group relative bg-white flex flex-col overflow-hidden transition-all duration-500 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] rounded-2xl md:rounded-3xl border border-transparent hover:border-gray-100">
       
@@ -26,8 +58,16 @@ const ProductCard = ({ product, onAddToCart }) => {
           )}
         </div>
 
-        <button className="absolute top-3 right-3 z-20 p-2 bg-white/80 backdrop-blur-md rounded-full text-gray-400 hover:text-red-500 hover:scale-110 transition-all duration-300 shadow-sm">
-          <Heart size={16} />
+        {/* --- Heart / Wishlist Button (Updated) --- */}
+        <button 
+          onClick={handleWishlistClick}
+          className={`absolute top-3 right-3 z-20 p-2 backdrop-blur-md rounded-full transition-all duration-300 shadow-sm active:scale-90 ${
+            isInWishlist 
+            ? "bg-red-500 text-white" 
+            : "bg-white/80 text-gray-400 hover:text-red-500 hover:scale-110"
+          }`}
+        >
+          <Heart size={16} fill={isInWishlist ? "currentColor" : "none"} />
         </button>
 
         <img
@@ -37,7 +77,7 @@ const ProductCard = ({ product, onAddToCart }) => {
           className="h-full w-full object-cover object-center transition-transform duration-1000 group-hover:scale-110 cursor-pointer"
         />
 
-        {/* --- Desktop Hover Buttons (Positioned at the Bottom) --- */}
+        {/* --- Desktop Hover Buttons --- */}
         <div className="hidden lg:flex absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 items-end justify-center px-4 pb-6">
           <div className="w-full space-y-2">
             <button
